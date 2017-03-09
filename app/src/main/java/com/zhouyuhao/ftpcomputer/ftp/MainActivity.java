@@ -19,7 +19,11 @@ import java.util.Calendar;
  * 泰隆银行计算器
  * @author zhouyuhao01
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    public static final int MONTH = 30;
+    public static final int YEAR = 365;
+
 
     /**
      * 开始时间弹窗
@@ -53,10 +57,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private RadioGroup mRadioGroupRepayMode;
     /**
-     * 支付频率
-     */
-    private RadioGroup mRadioGroupRepayFrequncy;
-    /**
      * 开始计算按钮
      */
     private Button mButtonCompute;
@@ -64,10 +64,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 利润
      */
     private TextView mTextBenefit;
+    /**
+     * ftp利率
+     */
+    private TextView mTextFTPRate;
 
     private DatePicker mDatePickerStart;
     private DatePicker mDatePickerEnd;
 
+    /** 当前贷款天数 */
+    private int mPayDayCounts = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,11 +90,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mTextViewStartTime = (Button) findViewById(R.id.datepicker_start);
         mTextViewStartTime.setOnClickListener(this);
         mRadioGroupRepayMode = (RadioGroup) findViewById(R.id.radio_repayment_method);
-        mRadioGroupRepayFrequncy = (RadioGroup) findViewById(R.id.radio_repayment_frequency);
         mButtonCompute = (Button) findViewById(R.id.button_computer);
         mButtonCompute.setOnClickListener(this);
 
         mTextBenefit = (TextView) findViewById(R.id.text_benefit);
+
+        mTextFTPRate =(TextView) findViewById(R.id.text_ftp_rate);
 
         init();
     }
@@ -109,7 +116,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                           int monthOfYear, int dayOfMonth) {
                         mDatePickerStart = view;
                         TextView show = (TextView) findViewById(R.id.datepicker_start);
-                        show.setText(year + "年" + monthOfYear + "月" + dayOfMonth + "日");
+                        show.setText(view.getYear() + "年" + (view.getMonth() + 1) + "月" + view.getDayOfMonth() + "日");
+
+                        calculateDays();
+                        if (mPayDayCounts > 0) {
+                            mTextFTPRate.setText(calculateRate(mPayDayCounts) + "%");
+                        }
+
                     }
                 }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 
@@ -122,7 +135,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                           int monthOfYear, int dayOfMonth) {
                         mDatePickerEnd = view;
                         TextView show = (TextView) findViewById(R.id.datepicker_end);
-                        show.setText(year + "年" + monthOfYear + "月" + dayOfMonth + "日");
+                        show.setText(view.getYear() + "年" + (view.getMonth() + 1) + "月" + view.getDayOfMonth() + "日");
+                        calculateDays();
+                        if (mPayDayCounts > 0) {
+                            mTextFTPRate.setText(calculateRate(mPayDayCounts) + "%");
+                        }
                     }
                 }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 
@@ -135,15 +152,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         float money;
         float rate;
-        int startYear;
-        int startMonth;
-        int startDay;
-        int endYear;
-        int endMonth;
-        int endDay;
-        int repayMethod;
-        int repayFrequency;
-
 
         try {
             if (mEditTextMoneyCount.getText() != null && mEditTextMoneyCount.getText().length() > 0) {
@@ -170,45 +178,56 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
-
-        if (mDatePickerStart != null) {
-            startYear = mDatePickerStart.getYear();
-            startMonth = mDatePickerStart.getMonth();
-            startDay = mDatePickerStart.getDayOfMonth();
-        } else {
+        if (mDatePickerStart == null) {
             Toast.makeText(this, "请选择开始时间", Toast.LENGTH_LONG).show();
             return;
         }
 
-        if (mDatePickerEnd != null) {
-            endYear = mDatePickerEnd.getYear();
-            endMonth = mDatePickerEnd.getMonth();
-            endDay = mDatePickerEnd.getDayOfMonth();
-
-        } else {
+        if (mDatePickerEnd == null) {
             Toast.makeText(this, "请选择结束时间", Toast.LENGTH_LONG).show();
             return;
         }
 
-        if (mRadioGroupRepayMode.getCheckedRadioButtonId() > 0) {
-            repayMethod = mRadioGroupRepayMode.getCheckedRadioButtonId();
-        } else {
-            Toast.makeText(this, "请选择还款方式", Toast.LENGTH_LONG).show();
-            return;
+        int days = mPayDayCounts;
+        if (days < 30) {
+            days = 30;
         }
+        double benefit = money * days * ((rate - calculateRate(mPayDayCounts)) / 100) / 365 ;
 
-        if (mRadioGroupRepayFrequncy.getCheckedRadioButtonId() > 0) {
-            repayFrequency = mRadioGroupRepayFrequncy.getCheckedRadioButtonId();
-        } else {
-            Toast.makeText(this, "请选择支付频率", Toast.LENGTH_LONG).show();
-            return;
+        mTextBenefit.setText(String.format("%.2f", benefit * 10000) + "元");
+
+    }
+
+    private void calculateDays() {
+
+        if (mDatePickerStart != null && mDatePickerEnd != null) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(mDatePickerStart.getYear(), mDatePickerStart.getMonth(), mDatePickerStart.getDayOfMonth());
+            long startTime  = calendar.getTimeInMillis();
+            calendar.set(mDatePickerEnd.getYear(), mDatePickerEnd.getMonth(), mDatePickerEnd.getDayOfMonth());
+            long endTime = calendar.getTimeInMillis();
+            mPayDayCounts = (int) ((endTime - startTime) / (1000*3600*24));
         }
+    }
 
-        double benefit = money * Math.pow((100 + rate) / 100, endYear - startYear);
-
-
-        mTextBenefit.setText(String.format("%.2f", benefit) + "万元");
-
+    private float calculateRate(int payDayCount) {
+        float ftpRate;
+        if (payDayCount < MONTH * 3) {
+            ftpRate = 4.296f;
+        } else if (payDayCount < MONTH * 6) {
+            ftpRate = 4.856f;
+        } else if (payDayCount < MONTH * 9) {
+            ftpRate = 6.378f;
+        } else if (payDayCount < YEAR) {
+            ftpRate = 5.768f;
+        } else if (payDayCount < YEAR * 2) {
+            ftpRate = 6.009f;
+        } else if (payDayCount < YEAR * 3) {
+            ftpRate = 7.1f;
+        } else {
+            ftpRate = 7.27f;
+        }
+        return ftpRate;
     }
 
     @Override

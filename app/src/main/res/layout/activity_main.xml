@@ -128,24 +128,14 @@
             android:layout_height="match_parent"
             android:text="还款方式"/>
         <RadioGroup
+            android:gravity="center"
             android:id="@+id/radio_repayment_method"
             android:orientation="horizontal"
             android:layout_weight="4"
             android:layout_width="0dp"
             android:layout_height="wrap_content">
             <RadioButton
-                android:textSize="12sp"
-                android:text="等额本息"
-                android:layout_weight="1"
-                android:layout_width="1dp"
-                android:layout_height="wrap_content"/>
-            <RadioButton
-                android:textSize="12sp"
-                android:layout_weight="1"
-                android:text="等额本金"
-                android:layout_width="1dp"
-                android:layout_height="wrap_content"/>
-            <RadioButton
+                android:checked="true"
                 android:textSize="12sp"
                 android:layout_weight="1"
                 android:text="到期还款"
@@ -154,39 +144,24 @@
         </RadioGroup>
     </LinearLayout>
 
-    <!-- 支付频率 -->
     <LinearLayout
-        android:id="@+id/layout_repayment_frequency"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:gravity="center"
-        android:paddingTop="@dimen/activity_vertical_margin"
+        android:id="@+id/layout_ftp_rate"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
         android:layout_below="@id/layout_repayment_method">
         <TextView
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="支付频率"/>
-        <RadioGroup
-            android:layout_gravity="right"
-            android:id="@+id/radio_repayment_frequency"
+            android:text="对应FTP利率"/>
+        <TextView
             android:gravity="center"
-            android:orientation="horizontal"
-            android:layout_weight="4"
+            android:layout_weight="1"
+            android:id="@+id/text_ftp_rate"
             android:layout_width="0dp"
-            android:layout_height="wrap_content">
-            <RadioButton
-                android:textSize="12sp"
-                android:text="每月还款"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <RadioButton
-                android:textSize="12sp"
-                android:text="每季度还款"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </RadioGroup>
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 
 
@@ -199,7 +174,7 @@
         android:id="@+id/button_computer"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_below="@id/layout_repayment_frequency"/>
+        android:layout_below="@id/layout_ftp_rate"/>
 
     <!-- 利润 -->
     <LinearLayout
@@ -211,11 +186,15 @@
         android:orientation="horizontal"
         android:layout_below="@id/button_computer">
         <TextView
+            android:textSize="20sp"
+            android:textColor="#ffff0000"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="FTP利润为"/>
         <TextView
+            android:textSize="20sp"
+            android:textColor="#ffff0000"
             android:id="@+id/text_benefit"
             android:gravity="center"
             android:text="0"
