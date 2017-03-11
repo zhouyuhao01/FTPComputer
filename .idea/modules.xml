@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/FTP.iml" filepath="$PROJECT_DIR$/FTP.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FTPComputer.iml" filepath="$PROJECT_DIR$/FTPComputer.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
